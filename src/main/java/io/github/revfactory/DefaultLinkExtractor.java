@@ -108,8 +108,8 @@ public class DefaultLinkExtractor implements LinkExtractorStrategy {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        LinkExtractorStrategy extractor = new DefaultLinkExtractor(10);  // 0.1 second delay
-        List<String> links = extractor.extractLinks("https://tailwindcss.com/docs");
+        LinkExtractorStrategy extractor = new DefaultLinkExtractor(10);  // 0.01 second delay
+        List<String> links = extractor.extractLinks("https://h2hggl.com");
         
         // Write links to a text file
         String outputFileName = "extracted_links.txt";
