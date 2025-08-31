@@ -51,6 +51,11 @@ public class SeleniumLinkExtractor implements LinkExtractorStrategy {
 
         URL url = new URL(sourceUrl);
         String base = url.getProtocol() + "://" + url.getHost();
+        String basePath = url.getPath();
+        if (basePath.isEmpty()) {
+            basePath = "/";
+        }
+        String basePathWithSlash = basePath.endsWith("/") ? basePath : basePath + "/";
 
         toVisit.add(sourceUrl);
 
@@ -69,8 +74,15 @@ public class SeleniumLinkExtractor implements LinkExtractorStrategy {
 
                     for (WebElement element : elements) {
                         String link = element.getAttribute("href");
-                        if (link != null && link.startsWith(base) && !visitedLinks.contains(link)) {
-                            toVisit.add(link);
+                        if (link != null && link.startsWith(base)) {
+                            try {
+                                String linkPath = new URL(link).getPath();
+                                if ((linkPath.equals(basePath) || linkPath.startsWith(basePathWithSlash)) && !visitedLinks.contains(link)) {
+                                    toVisit.add(link);
+                                }
+                            } catch (Exception ignored) {
+                                // Handle error or choose to ignore
+                            }
                         }
                     }
 
