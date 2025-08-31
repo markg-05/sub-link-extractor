@@ -5,6 +5,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -106,10 +108,19 @@ public class DefaultLinkExtractor implements LinkExtractorStrategy {
     }
 
     public static void main(String[] args) throws IOException, InterruptedException {
-        LinkExtractorStrategy extractor = new DefaultLinkExtractor(100);  // 0.1 second delay
+        LinkExtractorStrategy extractor = new DefaultLinkExtractor(10);  // 0.1 second delay
         List<String> links = extractor.extractLinks("https://tailwindcss.com/docs");
-        for (String link : links) {
-            System.out.println(link);
+        
+        // Write links to a text file
+        String outputFileName = "extracted_links.txt";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName))) {
+            for (String link : links) {
+                writer.write(link);
+                writer.newLine();
+            }
         }
+        
+        System.out.println("Links have been written to " + outputFileName);
+        System.out.println("Total links extracted: " + links.size());
     }
 }
