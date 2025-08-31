@@ -30,8 +30,8 @@ public final class LinkUtils {
             List<String> lines = readAllLinesFromUrl(robotUrl);
             boolean isUserAgentAll = false;
             for (String line : lines) {
-                if (line.trim().equalsIgnoreCase("User-agent: *")) {
-                    isUserAgentAll = true;
+                if (line.toLowerCase().startsWith("user-agent:")) {
+                    isUserAgentAll = line.trim().equalsIgnoreCase("User-agent: *");
                 } else if (isUserAgentAll && line.trim().startsWith("Disallow:")) {
                     disallowedPaths.add(line.split(":")[1].trim());
                 }
