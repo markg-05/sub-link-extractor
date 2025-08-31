@@ -9,7 +9,6 @@ import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -114,5 +113,20 @@ public class SeleniumLinkExtractor implements LinkExtractorStrategy {
         return new ChromeDriver(options);
     }
 
+    public static void main(String[] args) throws IOException, InterruptedException {
+        LinkExtractorStrategy extractor = new SeleniumLinkExtractor(10);
+        List<String> links = extractor.extractLinks("https://h2hggl.com");
+
+        String outputFileName = "extracted_links.txt";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName))) {
+            for (String link : links) {
+                writer.write(link);
+                writer.newLine();
+            }
+        }
+
+        System.out.println("Links have been written to " + outputFileName);
+        System.out.println("Total links extracted: " + links.size());
+    }
 }
 
