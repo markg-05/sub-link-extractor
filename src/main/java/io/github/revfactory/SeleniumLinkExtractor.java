@@ -19,13 +19,29 @@ import java.util.*;
 
 public class SeleniumLinkExtractor implements LinkExtractorStrategy {
     private final int requestDelayMs;
+    private final WebDriver driver;
+    private final boolean manageDriver;
 
     public SeleniumLinkExtractor() {
-        this(1000);  // default 1 second delay
+        this(createDriver(), 1000, true);
     }
 
     public SeleniumLinkExtractor(int requestDelayMs) {
+        this(createDriver(), requestDelayMs, true);
+    }
+
+    public SeleniumLinkExtractor(WebDriver driver) {
+        this(driver, 1000, false);
+    }
+
+    public SeleniumLinkExtractor(WebDriver driver, int requestDelayMs) {
+        this(driver, requestDelayMs, false);
+    }
+
+    private SeleniumLinkExtractor(WebDriver driver, int requestDelayMs, boolean manageDriver) {
         this.requestDelayMs = requestDelayMs;
+        this.driver = driver;
+        this.manageDriver = manageDriver;
     }
 
     @Override
@@ -39,7 +55,6 @@ public class SeleniumLinkExtractor implements LinkExtractorStrategy {
 
         toVisit.add(sourceUrl);
 
-        WebDriver driver = createDriver();
         try {
             while (!toVisit.isEmpty()) {
                 String currentUrl = toVisit.poll();
@@ -51,13 +66,7 @@ public class SeleniumLinkExtractor implements LinkExtractorStrategy {
                 }
 
                 try {
-                    Thread.sleep(requestDelayMs);
-                    driver.get(currentUrl);
-
-                    WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
-                    List<WebElement> elements = wait.until(
-                        ExpectedConditions.presenceOfAllElementsLocatedBy(By.tagName("a"))
-                    );
+                    List<WebElement> elements = fetchLinksWithDriver(driver, currentUrl);
 
                     for (WebElement element : elements) {
                         String link = element.getAttribute("href");
@@ -67,18 +76,31 @@ public class SeleniumLinkExtractor implements LinkExtractorStrategy {
                     }
 
                     visitedLinks.add(sanitizedUrl);
+                } catch (InterruptedException e) {
+                    throw e;
                 } catch (Exception ignored) {
                     // Handle error or choose to ignore
                 }
             }
         } finally {
-            driver.quit();
+            if (manageDriver) {
+                driver.quit();
+            }
         }
 
         return new ArrayList<>(visitedLinks);
     }
 
-    private WebDriver createDriver() {
+    protected List<WebElement> fetchLinksWithDriver(WebDriver driver, String url) throws InterruptedException {
+        Thread.sleep(requestDelayMs);
+        driver.get(url);
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
+        return wait.until(
+            ExpectedConditions.presenceOfAllElementsLocatedBy(By.tagName("a"))
+        );
+    }
+
+    private static WebDriver createDriver() {
         try {
             WebDriverManager.chromedriver().setup();
         } catch (Throwable ignored) {
