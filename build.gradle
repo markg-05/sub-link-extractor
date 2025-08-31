@@ -89,5 +89,5 @@ publishing {
 }
 
 application {
-    mainClass = 'io.github.revfactory.DefaultLinkExtractor'
+    mainClass = 'io.github.revfactory.SeleniumLinkExtractor'
 }

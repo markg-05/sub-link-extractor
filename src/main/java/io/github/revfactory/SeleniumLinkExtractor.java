@@ -10,6 +10,8 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
@@ -126,6 +128,22 @@ public class SeleniumLinkExtractor implements LinkExtractorStrategy {
         try (BufferedReader reader = new BufferedReader(new InputStreamReader(url.openStream()))) {
             return reader.lines().collect(Collectors.toList());
         }
+    }
+
+    public static void main(String[] args) throws IOException, InterruptedException {
+        LinkExtractorStrategy extractor = new SeleniumLinkExtractor(10);  // 0.01 second delay
+        List<String> links = extractor.extractLinks("https://h2hggl.com");
+
+        String outputFileName = "extracted_links.txt";
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputFileName))) {
+            for (String link : links) {
+                writer.write(link);
+                writer.newLine();
+            }
+        }
+
+        System.out.println("Links have been written to " + outputFileName);
+        System.out.println("Total links extracted: " + links.size());
     }
 }
 
